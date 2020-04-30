@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_graph"
+    app:startDestination="@id/earthQuakeFragment">
+
+    <fragment
+        android:id="@+id/earthQuakeFragment"
+        android:name="com.example.earthquakereport.earthFragment.EarthQuakeFragment"
+        android:label="fragment_earth_quake"
+        tools:layout="@layout/fragment_earth_quake" />
+</navigation>

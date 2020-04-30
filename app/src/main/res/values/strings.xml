@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">EarthQuakeReport</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="magnitude_value">6.0</string>
+    <string name="location_one">30km south of</string>
+    <string name="location_2">South Sudan Perimeter</string>
+    <string name="quake_time">7:30 AM</string>
+    <string name="quake_date">25th May 2002</string>
+</resources>
