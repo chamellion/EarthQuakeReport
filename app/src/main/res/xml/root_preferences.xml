@@ -1,0 +1,14 @@
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/messages_header">
+
+        <CheckBoxPreference
+            app:icon="@drawable/ic_swap_vert_black_24dp"
+            app:key="magnitude"
+            app:summaryOff="Off"
+            app:summaryOn="Arrange magnitude in ascending order"
+            app:title="Arrange Earthquake by Magnitude" />
+
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

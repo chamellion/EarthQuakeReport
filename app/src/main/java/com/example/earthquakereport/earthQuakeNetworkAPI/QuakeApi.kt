@@ -25,9 +25,11 @@ interface QuakeApi{
 
     @GET("query")
     fun getEarthQuakes(@Query("format") format: String,
-                        @Query("starttime") starttime : String,
-                        @Query("endtime") endtime : String,
-                         @Query("minmagnitude")minmag : Int) : Deferred<ResponseData>
+                       @Query("starttime") starttime: String,
+                       @Query("endtime") endtime: String,
+                       @Query("minmagnitude") minmag: Int,
+                       @Query("orderby") orderby: String
+    ): Deferred<ResponseData>
 }
 
 object QuakeApiService{

@@ -6,10 +6,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.earthquakereport.databinding.ListEarthquakeViewBinding
+import com.example.earthquakereport.domain.EarthQuakeDomain
 import com.example.earthquakereport.earthFragment.EarthQuakeAdapter.EarthQuakeViewHolder
-import com.example.earthquakereport.earthQuakeNetworkAPI.Properties
+import com.example.earthquakereport.earthQuakeNetworkAPI.EarthQuake
 
-class EarthQuakeAdapter : ListAdapter<Properties, EarthQuakeViewHolder>(DiffUtility()) {
+class EarthQuakeAdapter(private val onclickListener: OnclickListener) :
+    ListAdapter<EarthQuakeDomain, EarthQuakeViewHolder>(DiffUtility()) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EarthQuakeViewHolder {
@@ -19,15 +21,19 @@ class EarthQuakeAdapter : ListAdapter<Properties, EarthQuakeViewHolder>(DiffUtil
 
     override fun onBindViewHolder(holder: EarthQuakeViewHolder, position: Int) {
         val itemId = getItem(position)
-        holder.bind(itemId)
+        holder.bind(onclickListener, itemId)
     }
 
 
     class EarthQuakeViewHolder(private val listBinding: ListEarthquakeViewBinding) :
         RecyclerView.ViewHolder(listBinding.root) {
 
-        fun bind(properties: Properties?){
-            listBinding.earthQuakeProperty = properties
+        fun bind(
+            clickListen: OnclickListener,
+            earthQuake: EarthQuakeDomain?
+        ) {
+            listBinding.earthQuakeProperty = earthQuake
+            listBinding.onclickListener = clickListen
             listBinding.executePendingBindings()
         }
 
@@ -41,13 +47,19 @@ class EarthQuakeAdapter : ListAdapter<Properties, EarthQuakeViewHolder>(DiffUtil
     }
 }
 
-class DiffUtility : DiffUtil.ItemCallback<Properties>() {
-    override fun areItemsTheSame(oldItem: Properties, newItem: Properties): Boolean {
-        return oldItem.ids == newItem.ids
+class DiffUtility : DiffUtil.ItemCallback<EarthQuakeDomain>() {
+    override fun areItemsTheSame(oldItem: EarthQuakeDomain, newItem: EarthQuakeDomain): Boolean {
+        return oldItem.url == newItem.url
     }
 
-    override fun areContentsTheSame(oldItem: Properties, newItem: Properties): Boolean {
+    override fun areContentsTheSame(oldItem: EarthQuakeDomain, newItem: EarthQuakeDomain): Boolean {
         return oldItem == newItem
     }
 
+}
+
+class OnclickListener(val clickListener: (url: String) -> Unit) {
+    fun onclick(earthQuake: EarthQuakeDomain) {
+        clickListener(earthQuake.url)
+    }
 }

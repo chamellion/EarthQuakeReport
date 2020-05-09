@@ -1,66 +1,65 @@
 package com.example.earthquakereport.earthFragment
 
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import androidx.lifecycle.ViewModel
-import com.example.earthquakereport.earthQuakeNetworkAPI.Features
-import com.example.earthquakereport.earthQuakeNetworkAPI.Properties
-import com.example.earthquakereport.earthQuakeNetworkAPI.QuakeApiService
+import com.example.earthquakereport.database.EarthQuakeDatabase
+import com.example.earthquakereport.repository.EarthquakeRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 const val START_TIME = "2020-01-01"
 const val END_TIME = "2020-04-20"
 const val MAGNITUDE_LIMIT = 6
 const val FORMAT = "geojson"
 
-class EarthQuakeViewModel : ViewModel(){
 
-    private val _earthQuakeList = MutableLiveData<List<Properties>>()
-    val earthQuakeList : LiveData<List<Properties>>
-    get() = _earthQuakeList
+class EarthQuakeViewModel(
+    earthQuakeDatabase: EarthQuakeDatabase,
+    private val application: Application
+) :
+    ViewModel() {
 
-    private val _status = MutableLiveData<String>()
-    val status : LiveData<String>
-    get() = _status
-
-    private val viewModelJob = Job()
+    private val viewModelJob = SupervisorJob()
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    init {
-        getEarthQuakeFromNetwork()
+    private val repository = EarthquakeRepository(earthQuakeDatabase)
+
+
+    private fun isOnline(): Boolean {
+        val connectivityManager: ConnectivityManager =
+            application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = connectivityManager.activeNetwork ?: return false
+            val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+            return when {
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                else -> false
+            }
+        } else {
+            val info = connectivityManager.activeNetworkInfo ?: return false
+            return info.isConnected
+        }
     }
 
-    private fun getEarthQuakeFromNetwork() {
-        coroutineScope.launch {
-            val deferred = QuakeApiService.getEarthQuakeNow.getEarthQuakes(FORMAT, START_TIME,
-                END_TIME, MAGNITUDE_LIMIT)
-            try {
-                val list = deferred.await()
-                val propertyList: List<Properties> = extractFeatures(list.features)
-                _earthQuakeList.value = propertyList
-            }catch (T : Throwable){
-                Log.i("EarthQuakeViewModel", "error" + T.message)
+    init {
+        if (isOnline()) {
+            coroutineScope.launch {
+                repository.refreshNetworkWithDatabase()
             }
         }
     }
 
-    private fun extractFeatures(featuresList: List<Features>) : MutableList<Properties>{
-        val mute = mutableListOf<Properties>()
-        for (Property in featuresList){
-         Property.let {
-             val mut = Properties(it.properties.mag, it.properties.place,
-                 it.properties.time, it.properties.url, it.properties.ids)
-             mute.add(mut)
-         }
-        }
-        return mute
-    }
-
+    val earthQuake = repository.earthQuakeList
 
     override fun onCleared() {
         super.onCleared()

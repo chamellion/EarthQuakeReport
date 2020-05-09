@@ -1,14 +1,19 @@
 package com.example.earthquakereport.earthQuakeNetworkAPI
 
-import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class ResponseData(val features : List<Features>)
 
-data class Features(@field:Json(name = "properties") val properties : Properties)
+@JsonClass(generateAdapter = true)
+data class Features(val properties: EarthQuake)
+
+@JsonClass(generateAdapter = true)
+data class EarthQuake(
+    val mag: Double,
+    val place: String,
+    val time: Long,
+    val url: String
+)
 
 
-data class Properties( @field: Json(name = "mag") val mag: Double,
-                       @field: Json(name = "place")val place: String,
-                       @field: Json(name = "time")val time : Long,
-                       @field: Json(name = "url")val url : String,
-                       @field: Json(name = "ids") val ids : String)
